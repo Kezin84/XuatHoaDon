@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+
+
+    <title>Quản lý hàng hoá</title>
+    <style>
+        body{
+            background-color:rgb(24,33,46);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #totalRow {
+            font-weight: bold;
+        }
+
+        .fa { /* ICON */
+        font-size: 24px; /* Điều chỉnh kích thước của biểu tượng */
+        font-weight: bold;
+        }
+
+        .form-group {
+    display: flex; /* Hiển thị các phần tử con trên cùng một hàng dọc */
+    flex-direction: row; /* Xếp các phần tử con theo chiều ngang */
+    align-items: center; /* Căn giữa các phần tử con theo chiều dọc */
+    margin-bottom: 10px; /* Khoảng cách giữa các nhóm */
+        }
+
+        label {
+    width: 150px; /* Độ rộng của nhãn (tùy chỉnh theo ý muốn) */
+    margin-right: 10px; /* Khoảng cách giữa nhãn và trường nhập */
+    font-weight: bold;
+        }
+        #tinhtienvadoitien{
+            display: flex;
+        }
+
+        #tinhTien{ /* Div tinh tien */
+            
+            border: 4px solid;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background-color: #2B5278;
+            border-color: aliceblue;
+            color:white;
+        }
+        #them{
+            margin-left: 25%;
+            background-color: greenyellow;
+            color: #363636;
+            width: 150px;
+            height: 50px;
+            border-radius: 20px;
+        }
+        #them:hover{
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        #doiTien{
+            width: fit-content;
+            border: 4px solid;
+            padding: 10px;
+            margin-bottom: 5px;
+            margin-left: 10px;
+            border-radius: 5px;
+            background-color: aquamarine;
+            border-color: #f2f2f2;
+        }
+        #xuat{
+            border-radius: 5px;
+            margin-left: 20px;
+            width: 200px;
+            height:50px;
+            background-color: rgb(255,152,0);
+            color:aliceblue;
+            
+        }
+
+        #Xuathoadon{
+            display:flex;
+            flex-direction: column;
+        }
+
+        #xuat-excel{
+            border-radius: 5px;
+            margin-top: 5px;
+            margin-left: 20px;
+            width: 200px;
+            height:50px;
+            background-color: rgb(0,171,107);
+            color:aliceblue;
+            
+        }
+
+        #xuat:hover{
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        #xuat-excel:hover{
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        .copy{
+            font-weight: bold;
+            font-size: 25px;
+            margin-left: 20px;
+            border-radius: 7px ;
+            border: 4px dashed ;
+            margin-top:5px;
+            background-color: rgb(128,128,128);
+            border-color: aliceblue;
+            
+        }
+        .copy:hover{
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .copy{
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2px; /* Khoảng cách giữa các phần tử con */
+            
+        }
+        .copy p {
+    margin: 7px; /* Loại bỏ margin mặc định */
+    color: (255,255,255);
+}
+        button{
+            font-weight: bold;
+            font-size: 15px;
+            border-color: aliceblue;
+        }
+        #thaotacsua{
+            background-color: greenyellow;
+        }
+        #thaotacxoa{
+            background-color: red;
+        }
+        #btnvnd{
+            background-color: red;
+            color: yellow;
+            height: 50px;
+            border-radius: 20px;
+        }
+        #btnvnd:hover{
+            cursor: pointer;
+            opacity: 0.5;
+           
+        }
+        #btnps{
+            background-color: blue;
+            color: aliceblue;
+            height: 50px;
+            border-radius: 20px;
+        }
+        #btnps:hover{
+            cursor: pointer;
+            opacity: 0.5;
+        }
+        input{
+            height: 20px;
+            border-radius: 3px;
+            border: black;
+        }
+        label{
+            font-size: 20px;
+        }
+        table{
+            width: 50%;
+            margin-left: 20%;
+        }
+        #giohang{
+            color:aliceblue;
+            font-size: 40px;
+            margin-left: 20%;
+        }
+    </style>
+</head>
+<body>
+    <div id="tinhtienvadoitien">
+    <div id="tinhTien">
+    <h1 style="text-align: center;">TÍNH TIỀN HÀNG</h1>
+    <form id="productForm">
+        <div class="form-group">
+            <label for="productName">Tên hàng hoá:</label>
+            <input type="text" id="productName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="unit">Đơn vị tính (DVT):</label>
+            <input type="text" id="unit" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="quantity">Số lượng:</label>
+            <input type="number" id="quantity" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="unitPrice">Đơn giá:</label>
+            <input type="number" id="unitPrice" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="discountPercentage">Chiết khấu (%):</label>
+            <input type="number" id="discountPercentage" required>
+        </div>
+        
+    </form>
+    <button class="btn" id="them" type="button" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Thêm hàng hoá</button>
+</div>
+
+    <div id="doiTien">
+        <h1 style="text-align: center;">ĐỔI TIỀN</h1>
+        <div class="form-group">
+            <label for="unit">Nhập tiền Peso:</label>
+            <input type="text" id="peso" required>
+        </div>
+        <div class="form-group">
+            <label for="unit">Nhập tiền Việt Nam:</label>
+            <input type="text" id="vnd" required>
+        </div>
+        <div class="form-group">
+            <label for="unit">Tỷ giá:</label>
+            <input type="text" id="Tigia" required>
+        </div>
+        <button id='btnvnd' onClick="pesoQuaVietnam()"> Đổi sang Việt Nam đồng <i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+        <button id='btnps' onClick="vietNamsangPeso()"> Đổi sang Peso <i class="fa-solid fa-arrow-right-arrow-left"></i></button>
+        <h2 id="result">KẾT QUẢ : </h2>
+    </div>
+    <div id="Xuathoadon">
+    <button class="btn" id="xuat"type="button" onclick="exportInvoice()">Xuất hoá đơn ảnh <i class="fa-solid fa-image"></i></i> </button>
+    <button class="btn" id="xuat-excel" type="button" onclick="exportToExcel()">Xuất hoá đơn Excel <i class="fa-solid fa-file-arrow-down"></i></button>
+    <div   class="copy">
+    <p style="color:aliceblue">STK: 19038905056016</p>
+    <p style="color:aliceblue">NH: Techcombank</p>
+    <p style="color:aliceblue">CTK: NGUYEN THI HUNG</p>
+    <p style="color:aliceblue">Khách Ck xong cho mình xin bill ạ</p>
+    </div>
+    </div>
+</div>
+    </form>
+    <h1 id="giohang">HOÁ ĐƠN BÁN HÀNG</h1>
+    <table>
+        <thead >
+            <tr>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">Tên hàng hoá</th>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">DVT</th>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">Số lượng</th>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">Đơn giá</th>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">Thành tiền</th>
+                <th style="text-align: center;background-color:#00AE72;color: aliceblue; font-size: 20px;">Chiết khấu</th>
+                <th>CHỈNH SỬA</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody">
+        </tbody>
+        <tfoot>
+            <tr id="totalRow">
+                <td colspan="4" style="text-align: center;background-color:yellow">Tổng cộng:</td>
+                <td id="totalAmount" style="text-align: center;background-color:yellow"></td>
+                <td id="totalDiscount" style="text-align: center;background-color:yellow"></td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <script>
+        const productForm = document.getElementById('productForm');
+        const productTableBody = document.getElementById('productTableBody');
+        const totalAmountElement = document.getElementById('totalAmount');
+        const totalDiscountElement = document.getElementById('totalDiscount');
+        const discountPercentageInput = document.getElementById('discountPercentage');
+
+        let products = [];
+
+        function addProduct() {
+            const productName = document.getElementById('productName').value;
+            const unit = document.getElementById('unit').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+            const discountPercentage = parseFloat(discountPercentageInput.value);
+
+            const totalPrice = quantity * unitPrice;
+            const discount = (totalPrice * discountPercentage) / 100;
+            const product = {
+                name: productName,
+                unit: unit,
+                quantity: quantity,
+                unitPrice: unitPrice,
+                totalPrice: totalPrice,
+                discount: discount
+            };
+            if (!productName || !unit || isNaN(quantity) || isNaN(unitPrice) ) {
+                alert("Thông tin không hợp lệ. Vui lòng điền đầy đủ thông tin.");
+                return;
+            }
+            products.push(product);
+
+            renderTable();
+            clearForm();
+        }
+
+        function renderTable() {
+            productTableBody.innerHTML = '';
+            let totalAmount = 0;
+            let totalDiscount = 0;
+
+            products.forEach((product, index) => {
+                totalAmount += product.totalPrice;
+                totalDiscount += product.discount;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="text-align: center;background-color: aliceblue; font-weight: bold;">${product.name}</td>
+                    <td style="text-align: center;background-color: aliceblue;font-weight: bold;">${product.unit}</td>
+                    <td style="text-align: center;background-color: aliceblue;font-weight: bold;">${product.quantity.toLocaleString()}</td>
+                    <td style="text-align: center;background-color: aliceblue;font-weight: bold;">${product.unitPrice.toLocaleString()}</td>
+                    <td style="text-align: center;background-color: aliceblue;font-weight: bold;">${product.totalPrice.toLocaleString()}</td>
+                    <td style="text-align: center;background-color: aliceblue;font-weight: bold;">${product.discount.toLocaleString()}</td>
+                    <td>
+                        <button id='thaotacsua' type="button" onclick="editProduct(${index})">Chỉnh sửa</button>
+                        <button id='thaotacxoa' type="button" onclick="deleteProduct(${index})">Xoá</button>
+                    </td>
+                `;
+                productTableBody.appendChild(row);
+            });
+
+            totalAmountElement.textContent = totalAmount.toLocaleString();
+            totalDiscountElement.textContent = totalDiscount.toLocaleString();
+        }
+
+        function editProduct(index) {
+            const product = products[index];
+            document.getElementById('productName').value = product.name;
+            document.getElementById('unit').value = product.unit;
+            document.getElementById('quantity').value = product.quantity.toLocaleString();
+            document.getElementById('unitPrice').value = product.unitPrice.toLocaleString();
+            discountPercentageInput.value = (product.discount / (product.totalPrice / 100)).toLocaleString();
+
+            products.splice(index, 1);
+            renderTable();
+        }
+
+        function deleteProduct(index) {
+            products.splice(index, 1);
+            renderTable();
+        }
+
+        function clearForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('unit').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('unitPrice').value = '';
+            discountPercentageInput.value = '';
+        }
+        
+
+        // Tạo một đối tượng Date để lấy thời gian hiện tại
+    const currentDate = new Date();
+
+// Lấy ngày, tháng và năm
+const day = currentDate.getDate();
+const month = currentDate.getMonth() + 1; // Tháng bắt đầu từ 0, nên cần +1
+const year = currentDate.getFullYear();
+
+// Lấy giờ và phút
+const hours = currentDate.getHours();
+const minutes = currentDate.getMinutes();
+
+// Tạo một chuỗi hiển thị thời gian
+const currentTime = `${hours}:${minutes} - ${day}/${month}/${year}`;
+        function exportInvoice() {
+            let name =prompt("Nhập tên khách hàng");
+            let diachi = prompt("Nhập địa chỉ khách hàng");
+            let phone=prompt("Nhập số điện thoại khách hàng");
+            const guess= `${name};${diachi};${phone}`;
+    // Tạo một chuỗi HTML để chứa thông tin hoá đơn
+    let invoiceHTML = `
+    <h1 style="text-align: center;"><b>✪✪✪✪✪SIÊU THỊ VIỆT PHI 24/7✪✪✪✪✪</b></h1>
+        <div style="text-align: center;">
+    <h7><b>❖Address: 1632 Dian street, Makati</b></h7></br>
+    <h7><b>❖Phone: 09691620163</b></h7></br>
+    <h7><b>❖Tele: @goshopping084</b></h7></br>
+    <h7><b>❖Time: ${currentTime}</b></h7></br>
+    <h7><b>Guess Info: ${guess}</b></h7></br>
+</div>
+    
+</div>
+
+        <h2 style="text-align: center;"><b>--------- HOÁ ĐƠN ---------</b></h2>
+        
+        <table style="margin: 0 auto; text-align: center; width: 700px;">
+            <thead style="text-align: center;">
+                <tr style="text-align: center;">
+                    <th style="text-align: center;" class="header-cell"><b>Tên hàng hoá</b></th>
+                    <th style="text-align: center;" class="header-cell"><b>DVT</b></th>
+                    <th style="text-align: center;" class="header-cell"><b>Số lượng</b></th>
+                    <th style="text-align: center;" class="header-cell"><b>Đơn giá</b></th>
+                    <th style="text-align: center;" class="header-cell"><b>Thành tiền</b></th>
+                    <th style="text-align: center;" class="header-cell"><b>Chiết khấu</b></th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center;">
+    `;
+
+    // Thêm thông tin từ mảng sản phẩm vào chuỗi HTML
+    products.forEach((product) => {
+        invoiceHTML += `
+            <tr style="text-align: center;">
+                <td style="text-align: center;" class="invoice-cell">${product.name}</td>
+                <td style="text-align: center;" class="invoice-cell">${product.unit}</td>
+                <td style="text-align: center;" class="invoice-cell">${product.quantity.toLocaleString()}</td>
+                <td style="text-align: center;" class="invoice-cell">${product.unitPrice.toLocaleString()}</td>
+                <td style="text-align: center;" class="invoice-cell">${product.totalPrice.toLocaleString()}</td>
+                <td style="text-align: center;" class="invoice-cell">${product.discount.toLocaleString()}</td>
+            </tr>
+        `;
+    });
+
+    // Tính tổng cộng và thêm vào chuỗi HTML
+    invoiceHTML += `
+            </tbody>
+            <tfoot style="text-align: center;">
+                <tr style="text-align: center;">
+                    <td style="text-align: center;" colspan="4" class="total-cell"><b>Tổng cộng:</b></td>
+                    <td style="text-align: center;" class="total-cell"><b>${totalAmountElement.textContent}</b></td>
+                    <td style="text-align: center;" class="total-cell"><b>${totalDiscountElement.textContent}</b></td>
+                </tr>
+                
+            </tfoot>
+            
+        </table>
+        <h3 style="text-align: center;"><b>***CẢM ƠN VÀ HẸN GẶP LẠI QUÝ KHÁCH***</b></h3>
+    `;
+
+        
+    // Tạo cửa sổ mới và hiển thị thông tin hoá đơn
+    const newWindow = window.open('', '', 'width=600,height=400');
+    newWindow.document.write(invoiceHTML);
+
+    // Định dạng border đậm cho các ô thông tin hoá đơn và tiêu đề
+    const invoiceCells = newWindow.document.querySelectorAll('.invoice-cell');
+    const headerCells = newWindow.document.querySelectorAll('.header-cell');
+    const totalCells = newWindow.document.querySelectorAll('.total-cell');
+    
+    invoiceCells.forEach((cell) => {
+        cell.style.border = '1px solid #000'; // Định dạng viền cho từng ô thông tin
+        cell.style.padding = '4px'; // Định dạng padding cho từng ô thông tin
+        cell.style.fontWeight = 'bold';
+    });
+    
+    headerCells.forEach((cell) => {
+        cell.style.border = '1px solid #000'; // Định dạng border đậm cho tiêu đề
+        cell.style.padding = '4px'; // Định dạng padding cho tiêu đề
+        cell.style.fontWeight = 'bold'; // In đậm tiêu đề
+    });
+    
+    totalCells.forEach((cell) => {
+        cell.style.border = '1px solid #000'; // Định dạng border đậm cho tổng cộng
+        cell.style.padding = '4px'; // Định dạng padding cho tổng cộng
+        cell.style.fontWeight = 'bold'; // In đậm tổng cộng
+    });
+
+    // Định dạng border cho cả bảng hoá đơn
+    newWindow.document.querySelector('table').style.borderCollapse = 'collapse';
+}
+
+    function pesoQuaVietnam(){
+       let peso=  document.getElementById('peso').value;
+       let tigia=   document.getElementById('Tigia').value;
+       let ketqua=peso*tigia;
+       parseFloat(peso)
+       document.getElementById('result').innerHTML='Kết quả: '+ketqua.toLocaleString()+' VND'
+    }
+    function vietNamsangPeso(){
+       let vnd=  document.getElementById('vnd').value;
+       let tigia=   document.getElementById('Tigia').value;
+       let ketqua=vnd/tigia;
+       parseFloat(vnd)
+       document.getElementById('result').innerHTML='Kết quả: '+ketqua.toLocaleString()+' PESO'
+    }
+    function exportToExcel() {
+        let info=[
+            prompt("Nhập tên khách hàng"),
+            prompt("Nhập địa chỉ khách hàng"),
+            prompt("Nhập số điện thoại khách hàng"),
+    ]
+
+    // Tạo một đối tượng Excel
+    const wb = XLSX.utils.book_new();
+    // Tạo một danh sách chứa dữ liệu hoá đơn
+    const invoiceData = [];
+
+    // Thêm tiêu đề cho danh sách dữ liệu
+    invoiceData.push([
+        info[0],
+        info[1],
+        info[2],
+        'Tên hàng hoá',
+        'DVT',
+        'Số lượng',
+        'Đơn giá',
+        'Thành tiền',
+        'Chiết khấu'
+    ]);
+
+    // Thêm dữ liệu từ bảng hoá đơn vào danh sách dữ liệu
+    products.forEach((product) => {
+        invoiceData.push([
+            product.name,
+            product.unit,
+            product.quantity,
+            product.unitPrice,
+            product.totalPrice,
+            product.discount
+        ]);
+    });
+
+    // Tạo một sheet trong file Excel
+    const ws = XLSX.utils.aoa_to_sheet(invoiceData);
+
+    // Đặt tên cho sheet
+    XLSX.utils.book_append_sheet(wb, ws, 'Hoá đơn');
+
+    // Chuyển đổi file Excel thành một chuỗi dữ liệu
+    const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
+
+    // Chuyển đổi chuỗi dữ liệu thành một blob
+    const blob = new Blob([s2ab(atob(excelData))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+    // Sử dụng thư viện FileSaver.js để tạo và tải file
+    saveAs(blob, 'hoa-don.xlsx');
+}
+
+// Hàm chuyển đổi chuỗi thành mảng dữ liệu
+function s2ab(s) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) {
+        view[i] = s.charCodeAt(i) & 0xFF;
+    }
+    return buf;
+}
+
+const copyElements = document.querySelectorAll('.copy');
+
+// Đặt sự kiện click cho từng thẻ p
+copyElements.forEach((element) => {
+    element.addEventListener('click', () => {
+        // Tạo một thẻ textarea ẩn để đặt nội dung cần sao chép
+        const textArea = document.createElement('textarea');
+        textArea.value = element.textContent;
+        document.body.appendChild(textArea);
+
+        // Chọn và sao chép nội dung vào clipboard
+        textArea.select();
+        document.execCommand('copy');
+
+        // Loại bỏ thẻ textarea sau khi đã sao chép
+        document.body.removeChild(textArea);
+
+        // Thông báo khi đã sao chép xong
+        alert('ĐÃ SAO CHÉP THÔNG TIN');
+    });
+});
+    </script>
+</body>
+</html>
